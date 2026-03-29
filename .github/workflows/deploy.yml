@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Rollback tag (e.g. 1, 2, 3)'
+        required: false
+        default: 'latest'
 
 jobs:
   build:
@@ -33,4 +39,12 @@ jobs:
         with:
           context: .
           push: true
-          tags: nakuldubey33/backendimage:latest
+          tags: |
+            nakuldubey33/backendimage:latest
+            nakuldubey33/backendimage:${{ github.run_number }}
+
+      - name: Verify image pushed
+        run: |
+          docker pull nakuldubey33/backendimage:latest
+          echo "Image verified successfully"
+          echo "Build number: ${{ github.run_number }}"
