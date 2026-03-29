@@ -1,9 +1,11 @@
-FROM eclipse-temurin:17-jre-alpine
-
+FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-COPY target/real-0.0.1-SNAPSHOT.jar  application.jar
-
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/*.jar application.jar
 EXPOSE 8080
-
-ENTRYPOINT ["java","-XX:MaxRAMPercentage=75.0","-jar","application.jar"]
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "application.jar"]
